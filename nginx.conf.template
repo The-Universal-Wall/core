@@ -1,0 +1,43 @@
+worker_processes 1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass https://$PROXY_DOMAIN;
+            proxy_set_header Host $PROXY_DOMAIN;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            proxy_ssl_server_name on;
+            proxy_ssl_name $PROXY_DOMAIN;
+
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" href="/custom-header-footer.css"></head>';
+            sub_filter '</body>' '<footer>Your custom footer content here</footer></body>';
+            sub_filter 'https://www.lemonde.fr' 'http://localhost';
+            sub_filter_once off;
+
+            proxy_buffering off;
+
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods "GET, OPTIONS";
+            add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept";
+
+            if ($request_method = OPTIONS) {
+                add_header Access-Control-Allow-Origin *;
+                add_header Access-Control-Allow-Methods "GET, OPTIONS";
+                add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept";
+                return 204;
+            }
+
+            add_header Cache-Control no-cache;
+        }
+    }
+}
