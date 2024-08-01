@@ -15,13 +15,15 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
 
+            proxy_set_header Cookie '$COOKIE';
+
             proxy_ssl_server_name on;
             proxy_ssl_name $PROXY_DOMAIN;
 
             proxy_set_header Accept-Encoding "";
             sub_filter '</head>' '<link rel="stylesheet" href="/custom-header-footer.css"></head>';
             sub_filter '</body>' '<footer>Your custom footer content here</footer></body>';
-            sub_filter 'https://www.lemonde.fr' 'http://localhost';
+            sub_filter https://$PROXY_DOMAIN 'http://localhost';
             sub_filter_once off;
 
             proxy_buffering off;
@@ -29,6 +31,10 @@ http {
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods "GET, OPTIONS";
             add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept";
+
+            proxy_hide_header content-security-policy;
+
+            add_header Content-Security-Policy "default-src 'self'; img-src 'self' http: data: https: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' http:; style-src 'self' 'unsafe-inline';";
 
             if ($request_method = OPTIONS) {
                 add_header Access-Control-Allow-Origin *;
