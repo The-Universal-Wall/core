@@ -7,6 +7,7 @@ events {
 http {
     server {
         listen 80;
+        
 
         location / {
             proxy_pass https://$PROXY_DOMAIN;
@@ -24,6 +25,7 @@ http {
             sub_filter '</head>' '<link rel="stylesheet" href="/custom-header-footer.css"></head>';
             sub_filter '</body>' '<footer>Your custom footer content here</footer></body>';
             sub_filter https://$PROXY_DOMAIN 'http://localhost';
+            sub_filter //$PROXY_DOMAIN 'http://localhost';
             sub_filter_once off;
 
             proxy_buffering off;
