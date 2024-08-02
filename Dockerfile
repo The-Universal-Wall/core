@@ -5,6 +5,8 @@ RUN apk add --no-cache envsubst gettext
 # Copy the NGINX configuration template and entrypoint script
 COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY docker-entrypoint.sh /usr/local/bin/
+COPY www /usr/share/nginx/html
+COPY mime.types /etc/nginx/mime.types
 
 # Set the entrypoint to the custom script
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
